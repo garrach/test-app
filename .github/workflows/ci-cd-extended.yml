@@ -1,15 +1,27 @@
+name: Simple DevOps Pipeline Test
+
+# ✅ Define the triggers
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
 jobs:
   devops-core:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
+
       - name: Install dependencies
         run: npm ci
+
       - name: Archive node_modules
         uses: actions/upload-artifact@v3
         with:
@@ -35,7 +47,7 @@ jobs:
         run: echo "Staging deployment step completed"
 
   production-deploy:
-    needs: staging-deploy   # ✅ now depends on staging
+    needs: staging-deploy
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
