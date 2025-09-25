@@ -1,67 +1,58 @@
-name: Simple DevOps Pipeline Test
-
-on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
-
 jobs:
-  # 1️⃣ DevOps Core / Build & Test
   devops-core:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
-
       - name: Install dependencies
         run: npm ci
+      - name: Archive node_modules
+        uses: actions/upload-artifact@v3
+        with:
+          name: node-modules
+          path: node_modules
 
-  # 2️⃣ Staging Deployment
   staging-deploy:
     needs: devops-core
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
+      - name: Restore node_modules
+        uses: actions/download-artifact@v3
+        with:
+          name: node-modules
+          path: node_modules
       - name: Simulate Staging Deployment
-        run: echo "Staging deployment step - dependencies installed successfully"
+        run: echo "Staging deployment step completed"
 
-  # 3️⃣ Production Deployment
   production-deploy:
-    needs: devops-core
+    needs: staging-deploy   # ✅ now depends on staging
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
+      - name: Restore node_modules
+        uses: actions/download-artifact@v3
+        with:
+          name: node-modules
+          path: node_modules
       - name: Simulate Production Deployment
-        run: echo "Production deployment step - dependencies installed successfully"
+        run: echo "Production deployment step completed"
 
-  # 4️⃣ Post-Deploy Validations
   post-deploy-validations:
     needs: production-deploy
     runs-on: ubuntu-latest
