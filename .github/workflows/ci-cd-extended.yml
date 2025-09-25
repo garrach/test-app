@@ -52,19 +52,6 @@ jobs:
       - name: Build Next.js
         run: npm run build
 
-      - name: Deploy to Vercel (Staging)
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_STAGING_PROJECT_ID }}
-          working-directory: .
-
-      - name: Validate Staging API JSON with AJV
-        run: |
-          curl -s https://staging.example.com/game/player/1 > staging_player.json
-          npx ajv validate -s schema.json -d staging_player.json
-
   deploy-production:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -84,16 +71,3 @@ jobs:
 
       - name: Build Next.js
         run: npm run build
-
-      - name: Deploy to Vercel (Production)
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROD_PROJECT_ID }}
-          working-directory: .
-
-      - name: Validate Production API JSON with AJV
-        run: |
-          curl -s https://api.example.com/game/player/1 > prod_player.json
-          npx ajv validate -s schema.json -d prod_player.json
