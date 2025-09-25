@@ -1,4 +1,4 @@
-name: DevOps Pipeline Test (Cached)
+name: DevOps Pipeline Test (Optimized)
 
 on:
   push:
@@ -16,37 +16,41 @@ jobs:
         with:
           node-version: 20
 
-      # ✅ Cache npm dependencies
-      - name: Cache npm
+      # ✅ Cache node_modules directly
+      - name: Cache node_modules
         uses: actions/cache@v3
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-modules-
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --prefer-offline
+
+      - name: Simulate DevOps-Core
+        run: echo "DevOps-Core completed"
 
   staging-deploy:
     needs: devops-core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Cache npm
+      - name: Cache node_modules
         uses: actions/cache@v3
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-modules-
 
       - name: Simulate Staging Deployment
-        run: echo "Staging deployment step completed"
+        run: echo "Staging deployment completed"
 
   production-deploy:
     needs: staging-deploy
@@ -54,20 +58,21 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Cache npm
+      - name: Cache node_modules
         uses: actions/cache@v3
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-modules-
 
       - name: Simulate Production Deployment
-        run: echo "Production deployment step completed"
+        run: echo "Production deployment completed"
 
   post-deploy-validations:
     needs: production-deploy
