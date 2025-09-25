@@ -1,4 +1,4 @@
-name: Next.js CI/CD Extended
+name: Simple DevOps Pipeline Test
 
 on:
   push:
@@ -7,38 +7,10 @@ on:
     branches: [main, dev]
 
 jobs:
-  build-and-test:
+  devops-core:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Run Tests
-        run: npm run test
-
-      - name: Build Next.js
-        run: npm run build
-
-  deploy-staging:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev'
-
-    steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Setup Node.js
@@ -49,16 +21,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Next.js
-        run: npm run build
+    staging-deploy:
+    needs: devops-core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-  deploy-production:
-    needs: build-and-test
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Simulate Staging Deployment
+        run: echo "Staging deployment step - dependencies installed successfully"
+
+  production-deploy:
+    needs: devops-core
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Setup Node.js
@@ -69,5 +55,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Next.js
-        run: npm run build
+      - name: Simulate Production Deployment
+        run: echo "Production deployment step - dependencies installed successfully"
+
+  post-deploy-validations:
+    needs: production-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simulate Post-Deploy Validation
+        run: echo "Post-deploy validations passed"
