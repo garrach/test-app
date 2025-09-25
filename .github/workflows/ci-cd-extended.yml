@@ -1,6 +1,5 @@
-name: Simple DevOps Pipeline Test
+name: DevOps Pipeline Test (Cached)
 
-# ✅ Define the triggers
 on:
   push:
     branches: [main, dev]
@@ -11,38 +10,41 @@ jobs:
   devops-core:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      - uses: actions/setup-node@v3
         with:
           node-version: 20
 
+      # ✅ Cache npm dependencies
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
         run: npm ci
-
-      - name: Archive node_modules
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-modules
-          path: node_modules
 
   staging-deploy:
     needs: devops-core
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - name: Restore node_modules
-        uses: actions/download-artifact@v4
+
+      - name: Cache npm
+        uses: actions/cache@v3
         with:
-          name: node-modules
-          path: node_modules
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Simulate Staging Deployment
         run: echo "Staging deployment step completed"
 
@@ -51,17 +53,19 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - name: Restore node_modules
-        uses: actions/download-artifact@v4
+
+      - name: Cache npm
+        uses: actions/cache@v3
         with:
-          name: node-modules
-          path: node_modules
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Simulate Production Deployment
         run: echo "Production deployment step completed"
 
