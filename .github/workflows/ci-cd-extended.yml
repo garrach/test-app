@@ -36,7 +36,7 @@ jobs:
         run: |
           # Example: Fetch API JSON and validate keys
           # Replace with your actual endpoints
-          curl -s https://api.example.com/game/player/1 > player.json
+          curl -s http://127.0.0.1:3000/api/game/player > player.json
           node -e "
             const fs = require('fs');
             const player = JSON.parse(fs.readFileSync('player.json'));
