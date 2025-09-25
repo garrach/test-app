@@ -33,8 +33,7 @@ jobs:
         run: npm run build
 
       - name: Validate API JSON with AJV
-        run: |
-        curl -s http://127.0.0.1:3000/api/game/player > player.json
+        run: curl -s http://127.0.0.1:3000/api/game/player > player.json
         npx ajv validate -s schema.json -d player.json
 
   deploy-staging:
