@@ -18,7 +18,7 @@ const Home: NextPage = () => {
           </p>
           <div className="flex justify-center gap-4">
             <button className="px-6 py-3 bg-white/20 hover:bg-white/40 rounded-lg transition-all duration-300 font-semibold">
-              Get Started
+              Get Started for free
             </button>
             <button className="px-6 py-3 bg-white/10 border border-white/30 hover:bg-white/20 rounded-lg transition-all duration-300 font-semibold">
               Learn More
